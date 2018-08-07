@@ -18,11 +18,16 @@
  * 
  */
 
-typedef struct {
+//Variables usadas a lo largo del programa
+
+
+//Estrucuturas
+
+typedef struct {//Contador para crear personajes
     int n;
 } Contador;
 
-typedef struct {
+typedef struct {//Personajes que se podran usar a lo largo del juego
     char nombre[20];
     int codigo;
     int puntosDeVida;
@@ -36,6 +41,54 @@ typedef struct {
     int cantidadDeHiPotion;
     int cantidadDeMPotion;
 } Personaje;
+
+void menuPrincipal(Personaje *personajeUsado) {
+
+    int opcion = 0;
+
+    do {
+
+        printf("\n**************************************************************\n");
+        printf("\n\n\t\t\tMENU PRINCIPAL\n");
+        printf("\n**************************************************************\n");
+        printf("\n\t\tIngrese la opcion que desea\n");
+        printf("1)A la Carga\n");
+        printf("2)Tienda\n");
+        printf("3)ZzzZzz\n");
+        printf("4)Status\n");
+        printf("5)Mejor punteo\n");
+        printf("6)Cambiar de personaje\n");
+        printf("7)Salir del juego\n");
+        scanf("%d", &opcion);
+        switch (opcion) {
+            case 1:
+                //menuaLaCarga();
+                break;
+            case 2:
+                //menuTienda();
+                break;
+            case 3:
+                //menudormir();
+                break;
+            case 4:
+                //menuStatus();
+                break;
+            case 5:
+                //menuMejorPunteo();
+                break;
+            case 6:
+                break;
+            case 7:
+                printf("\n\t\t\tFIN DEL JUEGO");
+                opcion = 2;
+             
+            default:
+                printf("\n\n\t\t\t\tINSTRUCCION NO VALIDA, PRUEBE DE NUEVO\n\n");
+                opcion = 0;
+                break;
+        }
+    } while (opcion == 0);
+}
 
 int buscarCodigo() {//Utilizado en buscarPersonaje
     FILE *archivoContador;
@@ -74,14 +127,25 @@ void crearPersonaje(FILE *archivoPersonajes) {
 }
  */
 
+Personaje crearPersonaje(Personaje *personajeActual){
+    
+}
+
+Personaje modificarPersonaje(FILE *archivoPersonajes, Personaje *personajeActual) {//Pasar el personaje actual ya con sus cambios, y el archivo;
+
+}
+
 void mostrarPersonajes(FILE *archivoPersonajes) {
     Personaje personajeActual;
     archivoPersonajes = fopen("Personajes.bin", "rb"); //Ya existe el archivo(lectura)
     printf("%-50s", "NOMBRE DEL PERSONAJE");
-    printf("CODIGO DEL PERSONAJE\n");
+    printf("%-50s", "CODIGO DEL PERSONAJE");
+    printf("%s", "NIVEL\n");
     while (fread(&(personajeActual), sizeof (personajeActual), 1, archivoPersonajes)) {
         printf("%-50s", personajeActual.nombre);
-        printf("%d\n", personajeActual.codigo);
+        printf("%-50d", personajeActual.codigo);
+        printf("%d\n", personajeActual.nivel);
+
 
     }
 
@@ -96,17 +160,16 @@ Personaje seleccionarPersonaje(FILE *archivoPersonajes) {
         printf("\nIngrese el codigo del personaje que deseea escojer\n");
         fflush(stdin);
         scanf("%d", &codigoDelPersonaje);
-        printf("Despues lo leyo");
-        printf("El codigo es:%d\n", codigoDelPersonaje);
 
         archivoPersonajes = fopen("Personajes.bin", "rb");
         while (fread(&(personajeActual), sizeof (personajeActual), 1, archivoPersonajes)) {
-/*
-            printf("\nCodigo dentro del while:%d y nombre %s\n", personajeActual.codigo, personajeActual.nombre);
-*/
+            /*
+                        printf("\nCodigo dentro del while:%d y nombre %s\n", personajeActual.codigo, personajeActual.nombre);
+             */
             //Error en condicional
             if (personajeActual.codigo == codigoDelPersonaje) {
-                printf("\nCodigo dentro del while:%d\n y nombre %s", personajeActual.codigo, personajeActual.nombre);
+                //Lo comentado de abajo puede servir para ver como funciona el while 
+                //printf("\nCodigo dentro del while:%d\n y nombre %s", personajeActual.codigo, personajeActual.nombre);
                 return personajeActual;
             }
         }
@@ -114,7 +177,6 @@ Personaje seleccionarPersonaje(FILE *archivoPersonajes) {
     } while (repeticion == 0);
 
 }
-
 
 Personaje buscarPersonaje() {//El general, busca ara mostrar o crear 
 
@@ -129,6 +191,7 @@ Personaje buscarPersonaje() {//El general, busca ara mostrar o crear
         //Datos del personaje
         scanf("%s", personajeNuevo.nombre);
         personajeNuevo.codigo = buscarCodigo();
+        personajeNuevo.nivel = 0;
         //Se guarda el personaje
         fwrite(&personajeNuevo, sizeof (personajeNuevo), 1, archivoPersonaje);
 
@@ -140,11 +203,11 @@ Personaje buscarPersonaje() {//El general, busca ara mostrar o crear
         scanf("%d", &opcion);
         if (opcion == 0) {
             archivoPersonaje = fopen("Personajes.bin", "ab"); //Creamos el archivo
-            archivoPersonaje = fopen("Personajes.bin", "ab"); //Creamos el archivo
             printf("Escriba el nombre de su personaje\n"); //Se piden datos para el personaje
             //Datos del personaje
             scanf("%s", personajeNuevo.nombre);
             personajeNuevo.codigo = buscarCodigo();
+            personajeNuevo.nivel = 0;
             //Se guarda el personaje
             fwrite(&personajeNuevo, sizeof (personajeNuevo), 1, archivoPersonaje);
             printf("Personaj Creado\n");
@@ -153,13 +216,13 @@ Personaje buscarPersonaje() {//El general, busca ara mostrar o crear
             mostrarPersonajes(&archivoPersonaje);
             personajeNuevo = seleccionarPersonaje(&archivoPersonaje);
             printf("\nNombre del personaje seleccionado:%s\n", personajeNuevo.nombre);
-            printf("Si desea crear un nuevo Personaje precione 0");
         }
 
 
 
     }
     fclose(archivoPersonaje);
+    return personajeNuevo;
 }
 
 
@@ -180,14 +243,22 @@ void tituloPrincipal() {
     }
 }
 
+/*
+void modificarPersonaje(FILE *archivoPersonajes,Personaje *personaje){
+    
+}
+ */
+
 int main(int argc, char** argv) {
+    Personaje personajeUsado;
     /*
         Contador nuevo;
         nuevo.n=5;
         printf("Numeo es 5::%i", nuevo.n);
      */
     tituloPrincipal();
-    buscarPersonaje();
+    personajeUsado = buscarPersonaje();
+    menuPrincipal(&personajeUsado);
 }
 
 //Un metodo para crear un personaje completamente nuevo
