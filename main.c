@@ -72,7 +72,7 @@ void crearPersonaje(FILE *archivoPersonajes) {
     fwrite(&personajeNuevo, sizeof (personajeNuevo), 1, archivoPersonajes);
     printf("Personaj Creado\n");
 }
-*/
+ */
 
 void mostrarPersonajes(FILE *archivoPersonajes) {
     Personaje personajeActual;
@@ -90,31 +90,33 @@ void mostrarPersonajes(FILE *archivoPersonajes) {
 Personaje seleccionarPersonaje(FILE *archivoPersonajes) {
     int codigoDelPersonaje;
     Personaje personajeActual;
-
-    printf("\nIngrese el codigo del personaje que deseea escojer\n");
-    fflush(stdin);
-    scanf("%d", &codigoDelPersonaje);
-    printf("Despues lo leyo");
-    printf("El codigo es:%d\n", codigoDelPersonaje);
-
-    archivoPersonajes = fopen("Personajes.bin", "rb");
     //
-    while (fread(&(personajeActual), sizeof (personajeActual), 1, archivoPersonajes)) {
-        if (personajeActual.codigo == codigoDelPersonaje) {
-            printf("Codigo dentro del while:%d\n y nombre %s", personajeActual.codigo, personajeActual.nombre);
-            return personajeActual;
-        } else {
-            printf("No se ha encontrado al personaje, pruebe de nuevo\n");
-            mostrarPersonajes(&archivoPersonajes);
-            return seleccionarPersonaje(&archivoPersonajes);
+    int repeticion = 0;
+    do {
+        printf("\nIngrese el codigo del personaje que deseea escojer\n");
+        fflush(stdin);
+        scanf("%d", &codigoDelPersonaje);
+        printf("Despues lo leyo");
+        printf("El codigo es:%d\n", codigoDelPersonaje);
+
+        archivoPersonajes = fopen("Personajes.bin", "rb");
+        while (fread(&(personajeActual), sizeof (personajeActual), 1, archivoPersonajes)) {
+/*
+            printf("\nCodigo dentro del while:%d y nombre %s\n", personajeActual.codigo, personajeActual.nombre);
+*/
+            //Error en condicional
+            if (personajeActual.codigo == codigoDelPersonaje) {
+                printf("\nCodigo dentro del while:%d\n y nombre %s", personajeActual.codigo, personajeActual.nombre);
+                return personajeActual;
+            }
         }
-    }
-    //
-
+        printf("No se ha encontrado al personaje, pruebe de nuevo\n");
+    } while (repeticion == 0);
 
 }
 
-Personaje buscarPersonaje() {
+
+Personaje buscarPersonaje() {//El general, busca ara mostrar o crear 
 
     FILE *archivoPersonaje;
     Personaje personajeNuevo;
@@ -150,7 +152,7 @@ Personaje buscarPersonaje() {
             printf("\n\t\t\tESCOJA SU PERSONAJE\n");
             mostrarPersonajes(&archivoPersonaje);
             personajeNuevo = seleccionarPersonaje(&archivoPersonaje);
-            printf("Nombre del personaje seleccionado:%s", personajeNuevo.nombre);
+            printf("\nNombre del personaje seleccionado:%s\n", personajeNuevo.nombre);
             printf("Si desea crear un nuevo Personaje precione 0");
         }
 
