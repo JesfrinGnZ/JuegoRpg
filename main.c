@@ -63,7 +63,6 @@ struct Posion {
 void menuPrincipal(Personaje *personajeUsado) {
 
     int opcion = 0;
-
     do {
 
         printf("\n**************************************************************\n");
@@ -89,18 +88,23 @@ void menuPrincipal(Personaje *personajeUsado) {
                 //menudormir();
                 break;
             case 4:
-                //menuStatus();
+                mostrarStatusDelPersonaje(&(*personajeUsado));
+                printf("\n\n");
+                opcion=0;
                 break;
             case 5:
                 //menuMejorPunteo();
                 break;
             case 6:
                 printf("\n\t\tCAMBIO DE PERSONAJE\n");
+                (*personajeUsado).nivel = 525;
                 cambiarDePersonaje(&(*personajeUsado));
+                opcion = 1;
                 break;
             case 7:
                 printf("\n\t\t\tFIN DEL JUEGO");
                 opcion = 2;
+                break;
             case 8:
                 printf("Se modificar el personaje\n");
                 modificar();
@@ -112,6 +116,9 @@ void menuPrincipal(Personaje *personajeUsado) {
         }
     } while (opcion == 0);
 }
+
+
+//Funcones para trabajar con el personaje
 
 int buscarCodigo() {//Utilizado en buscarPersonaje
     FILE *archivoContador;
@@ -127,8 +134,8 @@ int buscarCodigo() {//Utilizado en buscarPersonaje
         //No es nulo
         fread(&contadorActual, sizeof (contadorActual), 1, archivoContador); //Se lee el contador actual
         printf("Se ha leido:%d", contadorActual.n);
-        contadorADevolver=contadorActual.n;
-        contadorActual.n++;//Este es el valor a utilizar y a guardar
+        contadorADevolver = contadorActual.n;
+        contadorActual.n++; //Este es el valor a utilizar y a guardar
         archivoContador = fopen("Contador.bin", "wb"); //Flujo para escritura
         fwrite(&contadorActual, sizeof (contadorActual), 1, archivoContador); //Se escribe el numero que se uso
         printf("Contador:%d\n", contadorActual.n);
@@ -141,95 +148,16 @@ int buscarCodigo() {//Utilizado en buscarPersonaje
 
 }
 
-/*
-void crearPersonaje(FILE *archivoPersonajes) {
-    Personaje personajeNuevo;
-
-    archivoPersonajes = fopen("Personajes.bin", "ab"); //Creamos el archivo
-    printf("Escriba el nombre de su personaje\n"); //Se piden datos para el personaje
-    //Datos del personaje
-    scanf("%s", personajeNuevo.nombre);
-    personajeNuevo.codigo = buscarCodigo();
-    //Se guarda el personaje
-    fwrite(&personajeNuevo, sizeof (personajeNuevo), 1, archivoPersonajes);
-    printf("Personaj Creado\n");
-}
- */
-
-
-void h() {
-    int nivelNuevo;
-    Personaje personajeSeleccionado;
-    Personaje personajeActual;
-    FILE *archivoPersonajes;
-
-    printf("Escoja el codigo del personaje que desea cambiar\n");
-    archivoPersonajes = fopen("Personajes.bin", "rb");
-    mostrarPersonajes(&archivoPersonajes);
-    //seleccionarPersonaje(&archivoPersonajes);
-    fclose(archivoPersonajes);
-
-
-
-    //  seleccionarPersonaje(&archivoPersonajes);
-    /*
-        personajeSeleccionado = seleccionarPersonaje(&archivoPersonajes);
-     */
-
-
-}
-
-/*
-
-void modificarPersonajePrueba() {//Pasar el personaje actual ya con sus cambios, y el archivo;
-
-    int nivelNuevo;
-    Personaje personajeSeleccionado;
-    Personaje personajeActual;
-    FILE *archivoPersonajes;
-
-    printf("Escoja el codigo del personaje que desea cambiar\n");
-
-    mostrarPersonajes(&archivoPersonajes);
-    archivoPersonajes= fopen("Personajes.bin","");
-    personajeSeleccionado = seleccionarPersonaje(archivoPersonajes);
-    printf("Cual sera el nuevo nivel??");
-    scanf("%d", &nivelNuevo);
-
-    //Abriendo el archivo para lectura y escritura
-    archivoPersonajes = fopen("Personajes.bin", "rb+");
-    while (fread(&(personajeActual), sizeof (personajeActual), 1, archivoPersonajes)) {
-                    printf("\nCodigo dentro del while:%d y nombre %s\n", personajeActual.codigo, personajeActual.nombre);
-        //Error en condicional
-
-        if (personajeActual.codigo == personajeSeleccionado.codigo) {
-            //Lo comentado de abajo puede servir para ver como funciona el while 
-            //printf("\nCodigo dentro del while:%d\n y nombre %s", personajeActual.codigo, personajeActual.nombre);
-            personajeActual.codigo = nivelNuevo;
-            fseek(archivoPersonajes, ftell(archivoPersonajes) - sizeof (personajeActual), SEEK_SET);
-            fwrite(&personajeActual, sizeof (personajeActual), 1, archivoPersonajes);
-            break;
-        }
-    }
-    
-    mostrarPersonajes(&archivoPersonajes);
-
-
-}*/
-
-
 void mostrarPersonajes(FILE *archivoPersonajes) {
     Personaje personajeActual;
     archivoPersonajes = fopen("Personajes.bin", "rb"); //Ya existe el archivo(lectura)
-    printf("%-50s", "NOMBRE DEL PERSONAJE");
-    printf("%-50s", "CODIGO DEL PERSONAJE");
+    printf("%-25s", "NOMBRE DEL PERSONAJE");
+    printf("%-25s", "CODIGO DEL PERSONAJE");
     printf("%s", "NIVEL\n");
     while (fread(&(personajeActual), sizeof (personajeActual), 1, archivoPersonajes)) {
-        printf("%-50s", personajeActual.nombre);
-        printf("%-50d", personajeActual.codigo);
+        printf("%-25s", personajeActual.nombre);
+        printf("%-25d", personajeActual.codigo);
         printf("%d\n", personajeActual.nivel);
-
-
     }
 
 }
@@ -296,7 +224,7 @@ Personaje buscarPersonaje() {//El general, busca ara mostrar o crear
             printf("Personaj Creado\n");
         } else {
             printf("\n\t\t\tESCOJA SU PERSONAJE\n");
-            mostrarPersonajes(&archivoPersonaje);
+            //            mostrarPersonajes(&archivoPersonaje);
             personajeNuevo = seleccionarPersonaje(&archivoPersonaje);
             printf("\nNombre del personaje seleccionado:%s\n", personajeNuevo.nombre);
         }
@@ -324,7 +252,7 @@ void guardarCambiosDePersonaje(Personaje *personajeSeleccionado) {//No cambia el
 
             fseek(archivoPersonajes, ftell(archivoPersonajes) - sizeof (personajeActual), SEEK_SET);
             fwrite(&(*personajeSeleccionado), sizeof ((*personajeSeleccionado)), 1, archivoPersonajes);
-            fread(&(*personajeSeleccionado), sizeof ((*personajeSeleccionado)), 1, archivoPersonajes);
+            fread(&(*personajeSeleccionado), sizeof ((*personajeSeleccionado)), 1, archivoPersonajes); //MUY IMPORTANTE
             printf("Se han guardado los cambios\n");
             break;
         }
@@ -341,7 +269,7 @@ void cambiarDePersonaje(Personaje *personajeSeleccionado) {
 
     //Guardando cambios
     guardarCambiosDePersonaje(&(*personajeSeleccionado));
-    mostrarPersonajes(&archivoPersonajes);
+    //mostrarPersonajes(&archivoPersonajes);
     (*personajeSeleccionado) = seleccionarPersonaje(&archivoPersonajes);
     printf("Ha cambiado de personaje, ahora esta con:%s\n", (*personajeSeleccionado).nombre);
     menuPrincipal(&(*personajeSeleccionado));
@@ -373,7 +301,7 @@ void modificarPersonaje(FILE *archivoPersonajes,Personaje *personaje){
  */
 
 
-void modificar() {
+void modificar() {//Prueba para modificar
     int nivelNuevo;
     Personaje personajeSeleccionado;
     Personaje personajeActual;
@@ -411,6 +339,33 @@ void modificar() {
 
 }
 
+
+//Opciones en menu
+
+
+//4
+
+void mostrarStatusDelPersonaje(Personaje *personaje) {
+
+    FILE *archivoDePersonajes;
+    Personaje personajeAuxiliar;
+
+    printf("\n\t\t\t============================================================\n");
+    printf("\t\t\t\t\tSTATUS DEL PERSONAJE");
+    printf("\n\t\t\t============================================================\n");
+
+    archivoDePersonajes = fopen("Personajes.bin", "rb"); //SOlo de lectura
+    while (fread(&(personajeAuxiliar), sizeof (personajeAuxiliar), 1, archivoDePersonajes)) {
+        if (personajeAuxiliar.codigo == (*personaje).codigo) {
+            printf("\t\t\t\tNombre :%s\n", personajeAuxiliar.nombre);
+            printf("\t\t\t\tCodigo :%d\n", personajeAuxiliar.codigo);
+            printf("\t\t\t\tPuntos de vida:%d", personaje->puntosDeVida);
+            break;
+        }
+    }
+    fclose(archivoDePersonajes);
+}
+
 int main(int argc, char** argv) {
     Personaje personajeUsado;
     FILE *arch;
@@ -419,14 +374,12 @@ int main(int argc, char** argv) {
         nuevo.n=5;
         printf("Numeo es 5::%i", nuevo.n);
      */
-
-
-
     tituloPrincipal();
     personajeUsado = buscarPersonaje();
     menuPrincipal(&personajeUsado);
 
-
 }
+
+
 
 //Un metodo para crear un personaje completamente nuevo
