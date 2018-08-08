@@ -13,6 +13,7 @@
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <time.h>
 
 /*
  * 
@@ -42,6 +43,13 @@ typedef struct {//Personajes que se podran usar a lo largo del juego
     int cantidadDeHiPotion; //0
     int cantidadDeMPotion; //0
 } Personaje;
+
+typedef struct {
+    char nombre[20];
+    int codigo;
+    int puntosDeVida;
+    int factorDeAtaque;
+} Enemigo;
 
 void iniciarPersonaje(Personaje *personajeCreado) {
     (*personajeCreado).codigo = buscarCodigo();
@@ -79,7 +87,7 @@ void menuPrincipal(Personaje *personajeUsado) {
         scanf("%d", &opcion);
         switch (opcion) {
             case 1:
-                //menuaLaCarga();
+                menuALaCarga(&(*personajeUsado));
                 break;
             case 2:
                 //menuTienda();
@@ -90,7 +98,7 @@ void menuPrincipal(Personaje *personajeUsado) {
             case 4:
                 mostrarStatusDelPersonaje(&(*personajeUsado));
                 printf("\n\n");
-                opcion=0;
+                opcion = 0;
                 break;
             case 5:
                 //menuMejorPunteo();
@@ -117,8 +125,127 @@ void menuPrincipal(Personaje *personajeUsado) {
     } while (opcion == 0);
 }
 
+void informacionDeJugadores(Personaje *personajeActual, Enemigo *enemigoActual) {
+
+    printf("\n*************INFORMACION ACTUAL DE LOS JUGADORES*************\n");
+    printf("Personaje:%s\n", (*personajeActual).nombre);
+    printf("Puntos de vida:%d\n\n", (*personajeActual).puntosDeVida);
+    printf("Enemigo:%s\n", (*enemigoActual).nombre);
+    printf("Puntos de vida:%d\n", (*enemigoActual).puntosDeVida);
+}
+
+void accionDePersonajeEnBatalla(Personaje *personajeActual, Enemigo *enemigoActual) {
+    int opcion;
+
+    informacionDeJugadores(&(*personajeActual), &(*enemigoActual));
+    printf("\n--------------------->ES SU TURNO\n");
+
+    do {
+        printf("1)Atacar\n");
+        printf("2)Curar\n");
+        printf("3)Usar algun Item\n");
+        printf("4)Tengo miedo\n");
+        scanf("%d", &opcion);
+        switch (opcion) {
+            case 1:
+                printf("\nAtacando................................\n");
+                int ataque = (((*personajeActual).nivel + 1)*10) + numeroAleatorio(10, 20);
+                printf("El dano al enemigo fue de: %d\n", ataque);
+                (*enemigoActual).puntosDeVida -= ataque;
+                break;
+            case 2:
+                break;
+            case 3:
+                break;
+            case 4:
+                break;
+            default:
+                printf("ORDEN NO ENCONTRADA PRUEBE DE NUEVO\n");
+                opcion = 0;
+                break;
+        }
+    } while (opcion == 0);
+    if ((*enemigoActual).puntosDeVida > 0) {
+        accionDeEnemigoEnBatalla(&(*personajeActual), &(*enemigoActual));
+    } else {
+        printf("\n\n\t\t\tFELICIDADES HA GANADO LA BATALLA\n");
+        (*personajeActual).cantidadDeVictorias++;
+        (*personajeActual).experiencia = numeroAleatorio(2, 5)*(*enemigoActual).factorDeAtaque;
+        (*personajeActual).oro = numeroAleatorio(5, 15)*(*enemigoActual).factorDeAtaque;
+        guardarCambiosDePersonaje(&(*personajeActual));
+        //Se le coloca todo lo que implica que gane la batalla, y guardar los datos en archivo
+    }
+}
+
+void accionDeEnemigoEnBatalla(Personaje *personajeActual, Enemigo *enemigoActual) {
+    printf("\t\t\n--------------------->TURNO DEL ENEMIGO\n");
+    int limiteInferior = ((*enemigoActual).factorDeAtaque + (*personajeActual).nivel);
+    int limiteSuperior = limiteInferior + 10;
+    int ataque = numeroAleatorio(limiteInferior, limiteSuperior);
+    printf("El enemigo ataco, causando un dano de:%d\n\n", ataque);
+    //(*personajeActual).puntosDeVida=(*personajeActual).puntosDeVida-(*enemigoActual).factorDeAtaque;
+    (*personajeActual).puntosDeVida -= ataque;
+    if ((*personajeActual).puntosDeVida <= 0) {
+        (*personajeActual).puntosDeVida = 0;
+        printf("\n\n\t\t\t HA PERDIDO LA BATALLA\n");
+        (*personajeActual).cantidadDeDerrotas++; //Guardar los datos en el archivo
+        guardarCambiosDePersonaje(&(*personajeActual));
+    } else {
+        accionDePersonajeEnBatalla(&(*personajeActual), &(*enemigoActual));
+    }
+}
+
+Enemigo buscarEnemigo() {
+    int numero = generarNumeroAleatorio();
+    //nombre, codigo, puntos de vida,factor de ataque 
+    Enemigo enemigo1 = {"Dark Wolf", 1, 100, 10};
+    Enemigo enemigo2 = {"Dragon", 2, 200, 15};
+    Enemigo enemigo3 = {"Mighty Golem", 3, 350, 25};
+
+    if (numero <= 4) {
+        return enemigo1;
+    } else if (numero > 4 && numero <= 7) {
+        return enemigo2;
+    } else {
+        return enemigo3;
+    }
+}
+
+int menuALaCarga(Personaje *personajeActual) {
+    int turno = generarNumeroAleatorio();
+    Enemigo enemigoActual = buscarEnemigo();
+
+    printf("\n\t\t\t\tENEMIGO:\n");
+    printf("\t\t\tNombre:%s\n", enemigoActual.nombre);
+    printf("\t\t\tPuntos de vida:%d\n", enemigoActual.puntosDeVida);
+
+    //Primer Turno
+    if (turno <= 5) {//Es turno del personaje
+        accionDePersonajeEnBatalla(&(*personajeActual), &enemigoActual);
+    } else {//Turno del enemigo
+        accionDeEnemigoEnBatalla(&(*personajeActual), &enemigoActual);
+    }
+
+
+}
 
 //Funcones para trabajar con el personaje
+
+int numeroAleatorio(int limiteInferior, int limiteSuperior) {
+    int numero;
+    srand(time(NULL));
+    //limte inferior
+    numero = limiteInferior + rand() % ((limiteSuperior + 1) - limiteInferior);
+    return numero;
+}
+
+int generarNumeroAleatorio() {
+    int numero;
+    srand(time(NULL));
+    //limte inferior
+    numero = 1 + rand() % ((10 + 1) - 1);
+    return numero;
+}
 
 int buscarCodigo() {//Utilizado en buscarPersonaje
     FILE *archivoContador;
@@ -359,12 +486,24 @@ void mostrarStatusDelPersonaje(Personaje *personaje) {
         if (personajeAuxiliar.codigo == (*personaje).codigo) {
             printf("\t\t\t\tNombre :%s\n", personajeAuxiliar.nombre);
             printf("\t\t\t\tCodigo :%d\n", personajeAuxiliar.codigo);
-            printf("\t\t\t\tPuntos de vida:%d", personaje->puntosDeVida);
+            printf("\t\t\t\tPuntos de vida:%d\n", personajeAuxiliar.puntosDeVida);
+            printf("\t\t\t\tPuntos de mana:%d\n", personajeAuxiliar.puntosDeMana);
+            printf("\t\t\t\tOro:%d\n", personajeAuxiliar.oro);
+            printf("\t\t\t\tExperiencia :%d\n", personajeAuxiliar.experiencia);
+            printf("\t\t\t\tNumero de derrotas:%d\n", personajeAuxiliar.cantidadDeDerrotas);
+            printf("\t\t\t\tNumero de victorias:%d\n", personajeAuxiliar.cantidadDeVictorias);
+            printf("\t\t\t\tNumero de MPotion:%d\n", personajeAuxiliar.cantidadDeMPotion);
+            printf("\t\t\t\tNumero de HiPotion:%d\n", personajeAuxiliar.cantidadDeHiPotion);
+            printf("\t\t\t\tNumero de Potion:%d\n", personajeAuxiliar.cantidadDePotion);
+
             break;
         }
     }
     fclose(archivoDePersonajes);
 }
+
+
+//Enemigos
 
 int main(int argc, char** argv) {
     Personaje personajeUsado;
